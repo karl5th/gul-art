@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:11.3
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: pohy
+      MYSQL_DATABASE: pohy
+      MYSQL_USER: pohy
+      MYSQL_PASSWORD: pohy
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - dbnet
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mariadb
+    networks:
+      - dbnet
+
+  php:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/var/www/html/:cached
+    ports:
+      - "8081:80"
+    depends_on:
+      - mariadb
+    networks:
+      - dbnet
+
+volumes:
+  mariadb_data:
+
+networks:
+  dbnet:
